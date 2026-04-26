@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+TOOL_DIR="$HOME"
+DOWNLOADS="/storage/emulated/0/Download"
+
+if [ "$1" = "hide" ]; then
+    read -p "msaar elmlf: " FILE
+    read -p "msaar elcover: " COVER
+
+    #gzip
+    mime=$(file --mime-type -b "$FILE")
+    if echo "$mime" | grep -q "jpeg\|png\|mp4\|zip"; then
+        cp "$FILE" "$TOOL_DIR/payload.tmp"
+    else
+        gzip -c "$FILE" > "$TOOL_DIR/payload.tmp"
+    fi
+
+    #ecoraptian
+    openssl enc -aes-256-cbc -pbkdf2 \
+        -in "$TOOL_DIR/payload.tmp" \
+        -out "$TOOL_DIR/payload.enc"
+
+    #duplicate
+    cat "$COVER" <(echo "REFAAI") "$TOOL_DIR/payload.enc" > "$DOWNLOADS/hidden.jpg"
+    #clean
+    rm "$TOOL_DIR/payload.tmp" "$TOOL_DIR/payload.enc"
+
+    echo "khlas_kda — hidden.jpg in Downlods"
+
+elif [ "$1" = "reveal" ]; then
+    read -p "msaar elcover: " STEG
+
+    #find the tail
+    offset=$(grep -boa "REFAAI" "$STEG" | cut -d: -f1)
+    start=$((offset + 7))
+    #extract
+    dd if="$STEG" bs=1 skip=$start of="$TOOL_DIR/payload.enc" 2>/dev/null
+
+    #decoding
+    openssl enc -d -aes-256-cbc -pbkdf2 \
+        -in "$TOOL_DIR/payload.enc" \
+        -out "$TOOL_DIR/payload.tmp"
+
+    #gzip ? or not
+    if file "$TOOL_DIR/payload.tmp" | grep -q "gzip"; then
+        gunzip -c "$TOOL_DIR/payload.tmp" > "$DOWNLOADS/revealed_file"
+    else
+        cp "$TOOL_DIR/payload.tmp" "$DOWNLOADS/revealed_file"
+    fi
+
+    #clean
+    rm "$TOOL_DIR/payload.enc" "$TOOL_DIR/payload.tmp"
+
+    echo "khlas_kda malaf in Downlods"
+
+else
+    echo "how to use"
+    echo "bash tool.sh hide"
+    echo "bash tool.sh reveal"
+fi
