@@ -1,0 +1,12 @@
+# Temporary files created by PHANTOM
+*.enc
+*.tmp
+*.gz
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Do NOT upload any hidden.jpg outputs
+hidden.jpg
+revealed_file
