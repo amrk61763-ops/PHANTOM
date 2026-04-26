@@ -55,6 +55,6 @@ elif [ "$1" = "reveal" ]; then
 
 else
     echo "how to use"
-    echo "bash tool.sh hide"
-    echo "bash tool.sh reveal"
+    echo "bash phantom.sh hide"
+    echo "bash phantom.sh reveal"
 fi
